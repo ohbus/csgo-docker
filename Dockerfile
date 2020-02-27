@@ -11,7 +11,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
-    && apt-get -y install apt-utils locales
+    && apt-get -y install apt-utils locales iproute2
 
 RUN dpkg --add-architecture i386 \
 	&& apt-get -y update \
@@ -53,13 +53,13 @@ RUN cd $SERVER \
 	&& ls -l \
 	&& $SERVER/linuxgsm.sh csgoserver \
 	&& ls -l \
-	&& $SERVER/csgoserver -y install \
+	&& $SERVER/csgoserver auto-install \
 	&& ls -l
 
 EXPOSE 27015
 
 WORKDIR /home/$USER/csgoserver
 
-ENTRYPOINT ["./csgoserver.sh" "start"]
+ENTRYPOINT ["$SERVER/csgoserver" "start"]
 
 # CMD ["-console" "-usercon" "+game_type" "0" "+game_mode" "1" "+mapgroup" "mg_active" "+map" "de_cache"]
