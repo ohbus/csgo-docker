@@ -5,18 +5,25 @@ ENV USER csgoserver
 ENV HOME /home/$USER
 ENV SERVER $HOME/csgoserver
 
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
 RUN apt-get -y update \
-    && apt-get -y upgrade
+    && apt-get -y upgrade \
+    && apt-get -y install apt-utils
 
 RUN dpkg --add-architecture i386 \
 	&& apt-get -y update \
     && apt-get -y upgrade
 
+RUN dpkg-reconfigure debconf
+
 RUN apt-get -y install mailutils postfix curl wget file \
 	&& apt-get -y install tar bzip2 gzip unzip \
 	&& apt-get -y install bsdmainutils python util-linux ca-certificates \
 	&& apt-get -y install binutils bc jq tmux lib32gcc1 libstdc++6 libstdc++6:i386 \
-	&& apt-get -y install vim ping telnet
+	&& apt-get -y install vim net-tools telnet
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
@@ -48,7 +55,9 @@ USER $USER
 
 RUN cd $SERVER
 
-RUN wget -O linuxgsm.sh https://linuxgsm.sh && chmod +x linuxgsm.sh && bash linuxgsm.sh csgoserver
+ADD ./linuxgsm.sh $SERVER/linuxgsm.sh
+
+RUN bash $SERVER/linuxgsm.sh csgoserver
 
 RUN ["./csgoserver.sh" "install"]
 
