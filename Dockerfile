@@ -3,7 +3,7 @@ MAINTAINER Subhrodip Mohanta <hire at subho dot xyz>
 
 ENV USER csgoserver
 ENV HOME /home/$USER
-ENV SERVER $HOME/csgoserver
+ENV SERVER $HOME/server
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -11,7 +11,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
-    && apt-get -y install apt-utils
+    && apt-get -y install apt-utils locales
 
 RUN dpkg --add-architecture i386 \
 	&& apt-get -y update \
@@ -43,23 +43,18 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-# ADD ./csgo_ds.txt $SERVER/csgo_ds.txt
-# ADD ./update.sh $SERVER/update.sh
-# ADD ./autoexec.cfg $SERVER/csgo/csgo/cfg/autoexec.cfg
-# ADD ./server.cfg $SERVER/csgo/csgo/cfg/server.cfg
-# ADD ./csgo.sh $SERVER/csgo.sh
-
 RUN chown -R $USER:$USER $SERVER
 
 USER $USER
 
-RUN cd $SERVER
-
 ADD ./linuxgsm.sh $SERVER/linuxgsm.sh
 
-RUN bash $SERVER/linuxgsm.sh csgoserver
-
-RUN ["./csgoserver.sh" "install"]
+RUN cd $SERVER \
+	&& ls -l \
+	&& $SERVER/linuxgsm.sh csgoserver \
+	&& ls -l \
+	&& $SERVER/csgoserver -y install \
+	&& ls -l
 
 EXPOSE 27015
 
